@@ -3,17 +3,23 @@
 let grid;
 let cellWidth;
 let cellHeight;
-const GRIDSIZE = 4;
+const GRIDSIZE = 10;
+let autoplay = false;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  grid = generateEmptyGrid(GRIDSIZE);
+  grid = generateRandomGrid(GRIDSIZE);
   cellWidth = width / grid[0].length;
   cellHeight = height / grid.length;
 }
 
 function draw() {
   background(220);
+  if (autoplay){
+    if (frameCount%30 === 0){
+      takeNextTurn(); 
+    }
+  }
   displayGrid();
 }
 
@@ -22,10 +28,6 @@ function mousePressed() {
   let cellY = floor(mouseY / cellHeight);
 
   toggleCell(cellX, cellY);   //self
-  toggleCell(cellX, cellY-1); //north
-  toggleCell(cellX, cellY+1); //south
-  toggleCell(cellX+1, cellY); //east
-  toggleCell(cellX-1, cellY); //west
 }
 
 function toggleCell(cellX, cellY) {
@@ -40,9 +42,61 @@ function toggleCell(cellX, cellY) {
 }
 
 function keyPressed() {
-  if (key === " ") {
-    grid = generateRandomGrid(10);
+  if (key === "r") {
+    grid = generateRandomGrid(GRIDSIZE);
   }
+  if(key===" "){
+    takeNextTurn();
+  }
+  if(key==="c"){
+    grid = generateEmptyGrid(GRIDSIZE);
+  }
+  if(key==="a"){
+    if (autoplay === true){
+      autoplay = false;
+    }
+    else{
+      autoplay = true;
+    }
+  }
+}
+function takeNextTurn(){
+  let nextTurn =  generateEmptyGrid(GRIDSIZE);
+
+  for(let y=0; y<GRIDSIZE; y++){
+    for(let x=0; x<GRIDSIZE;x++){
+      //count neighbors
+      let neighbors = 0; 
+      for(let i=-1;i<=1;i++){
+        for (let j=-1;j<=1;j++){
+          if(y+i>=0&& y+i<GRIDSIZE&&x+j>=0&&x+j<GRIDSIZE){
+            neighbors+= grid[y+i][x+j];
+          }
+        }
+      }
+      //subtract self from neighnor count
+      neighbors-=grid[y][x];
+
+      //apply rules
+
+      //if dead
+      if(grid[y][x]===0){
+        if (neighbors ===3){
+          nextTurn[y][x]=1;
+        }
+      }
+
+      //if alive
+      if(grid[y][x]===1){
+        if(neighbors ===2||neighbors ===3){
+          nextTurn[y][x]=1;
+        }
+      }
+      
+    }
+  }
+
+  grid = nextTurn;
 }
 
 function displayGrid() {
