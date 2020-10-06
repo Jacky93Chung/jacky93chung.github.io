@@ -22,9 +22,12 @@ function setup() {
   else {
     cellSize = height/ GRIDSIZE  - 10 ;
   }
+
+  
+  
+
   grid = placemine(GRIDSIZE);
-  cellWidth = width - cellSize+ windowWidth/2 - cellSize*4.5 / grid[0].length;
-  cellHeight = height / grid.length ;
+
 }
 
 
@@ -34,17 +37,33 @@ function draw() {
 
 }
 
-
+let closeMine;
 function mousePressed() {
-  let spaceX = floor(mouseX / cellWidth);
-  let spaceY = floor(mouseY / cellHeight);
-  digBomb(spaceX,spaceY);
+  let spaceX = floor((mouseX - (width/2 - cellSize*4.5))/cellSize  );
+  let spaceY = floor((mouseY  - (height/2 - cellSize*4.5))/cellSize);
+  digBomb(spaceX ,spaceY);
+  findMine(spaceX, spaceY);
 }
-
+function findMine(spaceX, spaceY){
+  closeMine = 0;
+  
+  if (spaceX >= 0 && spaceX < GRIDSIZE && spaceY >= 0 && spaceY < GRIDSIZE) {
+    for(let i=-1;i<=1;i++){
+      for (let j=-1;j<=1;j++){
+        if (grid[spaceY+i][spaceX+j] === "mine"){
+          closeMine = closeMine+1;
+        }
+      }
+    }
+  }
+ console.log(closeMine);
+}
+  
 function digBomb(spaceX, spaceY) {
   if (spaceX >= 0 && spaceX < GRIDSIZE && spaceY >= 0 && spaceY < GRIDSIZE) {
     if (grid[spaceY][spaceX] === "no mine" ||grid[spaceY][spaceX] === "pressed"  ) {
       grid[spaceY][spaceX] = "pressed";
+
     }
     else {
       grid[spaceY][spaceX] = "blow up";
@@ -53,10 +72,18 @@ function digBomb(spaceX, spaceY) {
 }
 
 
-// function ShowMine(){
-//   let closeMine = 0;
-//   for ()
+// function showMine(){
+
+
+  
+// for(let i=-1;i<=1;i++){
+//   for (let j=-1;j<=1;j++){
+//     if(y+i>=0&& y+i<GRIDSIZE&&x+j>=0&&x+j<GRIDSIZE){
+//       neighbors+= grid[y+i][x+j];
+//     }
+//   }
 // }
+
 
 function placemine(){
   let grid = [];
@@ -79,8 +106,12 @@ function displayGrid() {
   for (let y = 0; y<GRIDSIZE; y++) {
     for (let x= 0; x<GRIDSIZE; x++) {
       strokeWeight(1);
+     
       if (grid[y][x] === "pressed"){
         fill("white");
+        // textSize(cellSize * 0.8);
+        // textAlign(CENTER, CENTER);
+        // text(closeMine;
         //showNumber();
       }
       else if (grid[y][x] === "blow up"){
@@ -90,7 +121,7 @@ function displayGrid() {
       else{
         fill("green");
       }
-      rect(x*cellSize+ windowWidth/2 - cellSize*4.5, y*cellSize+ windowHeight/2 - cellSize*4.5, cellSize, cellSize);
+      rect(x*cellSize + windowWidth/2 - cellSize*4.5, y*cellSize+ windowHeight/2 - cellSize*4.5, cellSize, cellSize);
     }
   }
 }
