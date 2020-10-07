@@ -15,6 +15,7 @@ let mineMap;
  
 function setup() {
   createCanvas(windowWidth, windowHeight);
+  document.addEventListener("contextmenu", event => event.preventDefault());
   
 
   if (width < height) {
