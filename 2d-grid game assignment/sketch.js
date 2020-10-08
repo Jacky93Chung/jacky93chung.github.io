@@ -3,7 +3,9 @@
 // October 2020
 //
 // Extra for Experts:
-// - describe what you did to take this project "above and beyond"
+//right click on mouse
+//
+
 
 const GRIDSIZE = 9;
 let cellSize;
@@ -27,8 +29,8 @@ function setup() {
 
   
   
-
   grid = placemine(GRIDSIZE);
+
   mineMap = showMap(GRIDSIZE);
 }
 
@@ -43,112 +45,75 @@ let closeMine;
 function mousePressed() {
   let spaceX = floor((mouseX - (width/2- cellSize*(GRIDSIZE/2)))/cellSize  );
   let spaceY = floor((mouseY  - (height/2- cellSize*(GRIDSIZE/2)))/cellSize);
-  // let spaceY = floor(mouseY/cellSize);
-  digBomb(spaceX ,spaceY);
-  // findMine(spaceX, spaceY);
+
+  if (mouseButton === LEFT){
+    digBomb(spaceX ,spaceY);
+  }
+  if (mouseButton === RIGHT){
+    flagBomb(spaceX , spaceY);
+  }
+  
 }
 
-// function findMine(spaceX, spaceY){
- 
-//   closeMine = 0;
-//   if (spaceX>= 0 && spaceX < GRIDSIZE && spaceY - 1>= 0 && spaceY + 1  < GRIDSIZE) {
-//     for(let i=-1;i<=1;i++){
-//       for (let j=-1;j<=1;j++){
-//         if (grid[spaceY+i][spaceX+j] === "mine"){
-//           closeMine = closeMine+1;
-//         }
-//       }
-     
-//     }
-//   }
-//   else if (spaceX>= 0 && spaceX < GRIDSIZE && spaceY + 1> 0 && spaceY + 1  < GRIDSIZE) {
-//     for(let i=0;i<=1;i++){
-//       for (let j=-1;j<=1;j++){
-//         if (grid[spaceY+i][spaceX+j] === "mine"){
-//           closeMine = closeMine+1;
-//         }
-//       }
-     
-//     }
 
-//   }
-//   else{
-//     for(let i=-1;i<=0;i++){
-//       for (let j=-1;j<=1;j++){
-//         if (grid[spaceY+i][spaceX+j] === "mine"){
-//           closeMine = closeMine+1;
-//         }
-//       }
-  
-     
-//     }
-
-//   }
-//   console.log(closeMine);
-// }
-  
-
-// function findMine(x, y){
-//   let mineMap= [];
-//   closeMine = 0;
-//   if (x >= 0 && x < GRIDSIZE && y >= 0 && y < GRIDSIZE) {
-//     for(let i=-1;i<=1;i++){
-//       mineMap.push([]);
-//       for (let j=-1;j<=1;j++){
-//         if (grid[y+i][x+j] === "mine"){
-//           closeMine = closeMine+1;
-//         }
-//       }
-//       mineMap[i].push(closeMine);
-//     }
-//   }
- 
-// console.log(closeMine);
-// }
   
 function digBomb(spaceX, spaceY) {
   if (spaceX >= 0 && spaceX < GRIDSIZE && spaceY >= 0 && spaceY < GRIDSIZE) {
-    if (grid[spaceY][spaceX] === "no mine" ||grid[spaceY][spaceX] === "pressed"  ) {
+    if (grid[spaceY][spaceX] === "no mine" && grid[spaceY][spaceX] !== "flaged" ||grid[spaceY][spaceX] === "pressed" && grid[spaceY][spaceX] !== "flaged" ) {
       grid[spaceY][spaceX] = "pressed";
 
     }
-    else {
+    else if ( grid[spaceY][spaceX] === "mine" ||grid[spaceY][spaceX] === "blow up ") {
       grid[spaceY][spaceX] = "blow up";
     }
   }
 }
 
-
-
-// function showMine(){
-
-
+function flagBomb(spaceX, spaceY) {
+  if (spaceX >= 0 && spaceX < GRIDSIZE && spaceY >= 0 && spaceY < GRIDSIZE) {
+    if (grid[spaceY][spaceX] !== "blow up" && grid[spaceY][spaceX] !== "pressed" && grid[spaceY][spaceX] !== "no mineflaged" && grid[spaceY][spaceX] !== "mineflaged" ) {
+      if (grid[spaceY][spaceX] === "mine"){
+        grid[spaceY][spaceX] ="mineflaged";
+      }
+      else if (grid[spaceY][spaceX] === "no mine"){
+        grid[spaceY][spaceX] ="no mineflaged";
+      }
+    }
+    else if (grid[spaceY][spaceX] !== "blow up" && grid[spaceY][spaceX] !== "pressed" && grid[spaceY][spaceX] === "no mineflaged" ||grid[spaceY][spaceX] !== "blow up" && grid[spaceY][spaceX] !== "pressed" && grid[spaceY][spaceX] === "mineflaged"  ){
+      if (grid[spaceY][spaceX] === "mineflaged"){
+        grid[spaceY][spaceX] ="mine";
+      }
+      else if (grid[spaceY][spaceX] === "no mineflaged"){
+        grid[spaceY][spaceX] ="no mine";
+      }
+    }
+  }
   
-// for(let i=-1;i<=1;i++){
-//   for (let j=-1;j<=1;j++){
-//     if(y+i>=0&& y+i<GRIDSIZE&&x+j>=0&&x+j<GRIDSIZE){
-//       neighbors+= grid[y+i][x+j];
-//     }
-//   }
-// }
+  }
+
 
 
 function placemine(){
   let grid = [];
+
   for (let i=0; i<GRIDSIZE; i++) {
     grid.push([]);
     for (let j=0; j<GRIDSIZE; j++) {
       if (random(100) < 70) {
         grid[i].push("no mine");
+        
       }
       else {
         grid[i].push("mine");
+        
+        
       }
     }
   }
   return grid;
   
 }
+
 
 function showMap(){
   let  mineMap = [];
@@ -199,6 +164,7 @@ function showMap(){
 }
 
 function displayGrid() {
+  
   //squares
   for (let y = 0; y<GRIDSIZE; y++) {
     for (let x= 0; x<GRIDSIZE; x++) {
@@ -212,11 +178,10 @@ function displayGrid() {
         textAlign(CENTER, CENTER);
         text(mineMap[y][x],x*cellSize + windowWidth/2 - cellSize*(GRIDSIZE/2) +cellSize/2, y*cellSize+ windowHeight/2 - cellSize*(GRIDSIZE/2) + cellSize/2);
         
-        
-        // textSize(cellSize * 0.8);
-        // textAlign(CENTER, CENTER);
-        // text(closeMine;
-        //showNumber();
+      }
+      else if (grid[y][x] === "mineflaged" || grid[y][x] === "no mineflaged"){
+        fill("orange");
+        rect(x*cellSize + windowWidth/2 - cellSize*(GRIDSIZE/2), y*cellSize+ windowHeight/2 - cellSize*(GRIDSIZE/2), cellSize, cellSize);
       }
       else if (grid[y][x] === "blow up"){
         fill("red");
@@ -228,7 +193,7 @@ function displayGrid() {
         rect(x*cellSize + windowWidth/2 - cellSize*(GRIDSIZE/2), y*cellSize+ windowHeight/2 - cellSize*(GRIDSIZE/2), cellSize, cellSize);
       }
       
-    // rect(x*cellSize + windowWidth/2 - cellSize*4.5, y*cellSize, cellSize, cellSize);
+    
     }
     
   }
