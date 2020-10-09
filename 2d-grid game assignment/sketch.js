@@ -10,8 +10,6 @@
 let GRIDSIZE; // length x width of the grid
 let cellSize; //size of each little square
 let grid;  // the grid
-let cellWidth; 
-let cellHeight;
 let mineMap;  //the 2d grid for where mines are
 let state ="start9Grid"; 
 
@@ -51,16 +49,18 @@ function draw() {
 }
 
 // determine which side of the mouse is clicked
-let closeMine;
 function mousePressed() {
-  let spaceX = floor((mouseX - (width/2- cellSize*(GRIDSIZE/2)))/cellSize  );
+  let spaceX = floor((mouseX - (width/2- cellSize*(GRIDSIZE/2)))/cellSize);
   let spaceY = floor((mouseY  - (height/2- cellSize*(GRIDSIZE/2)))/cellSize);
 
-  if (mouseButton === LEFT){
-    digBomb(spaceX ,spaceY);
-  }
-  if (mouseButton === RIGHT){
-    flagBomb(spaceX , spaceY);
+  if (state !== "blowAllMine"){
+    if (mouseButton === LEFT){
+      digBomb(spaceX ,spaceY);
+    }
+  
+    if (mouseButton === RIGHT){
+      flagBomb(spaceX , spaceY);
+    }
   }
   
 }
@@ -68,10 +68,12 @@ function mousePressed() {
 //when left mouse is clicked, send signal that player decides to dig this square
 function digBomb(spaceX, spaceY) {
   if (spaceX >= 0 && spaceX < GRIDSIZE && spaceY >= 0 && spaceY < GRIDSIZE) {
+    
     if (grid[spaceY][spaceX] === "no mine" && grid[spaceY][spaceX] !== "flaged" ||grid[spaceY][spaceX] === "pressed" && grid[spaceY][spaceX] !== "flaged" ) {
       grid[spaceY][spaceX] = "pressed";
 
     }
+    
     else if ( grid[spaceY][spaceX] === "mine" ||grid[spaceY][spaceX] === "blow up ") {
       grid[spaceY][spaceX] = "blow up";
     }
@@ -81,18 +83,24 @@ function digBomb(spaceX, spaceY) {
 //when right mouse is clicked, sends signal that this square should be flagged
 function flagBomb(spaceX, spaceY) {
   if (spaceX >= 0 && spaceX < GRIDSIZE && spaceY >= 0 && spaceY < GRIDSIZE) {
+    
     if (grid[spaceY][spaceX] !== "blow up" && grid[spaceY][spaceX] !== "pressed" && grid[spaceY][spaceX] !== "no mineflaged" && grid[spaceY][spaceX] !== "mineflaged" ) {
+     
       if (grid[spaceY][spaceX] === "mine"){
         grid[spaceY][spaceX] ="mineflaged";
       }
+      
       else if (grid[spaceY][spaceX] === "no mine"){
         grid[spaceY][spaceX] ="no mineflaged";
       }
     }
-    else if (grid[spaceY][spaceX] !== "blow up" && grid[spaceY][spaceX] !== "pressed" && grid[spaceY][spaceX] === "no mineflaged" ||grid[spaceY][spaceX] !== "blow up" && grid[spaceY][spaceX] !== "pressed" && grid[spaceY][spaceX] === "mineflaged"  ){
+    
+    else if (grid[spaceY][spaceX] === "mine" || grid[spaceY][spaceX] === "no mine" || grid[spaceY][spaceX] === "no mineflaged" || grid[spaceY][spaceX] === "mineflaged"  ){
+      
       if (grid[spaceY][spaceX] === "mineflaged"){
         grid[spaceY][spaceX] ="mine";
       }
+     
       else if (grid[spaceY][spaceX] === "no mineflaged"){
         grid[spaceY][spaceX] ="no mine";
       }
@@ -109,10 +117,11 @@ function placemine(){
   for (let i=0; i<GRIDSIZE; i++) {
     grid.push([]);
     for (let j=0; j<GRIDSIZE; j++) {
+      
       if (random(100) < chanceOfHavingMine) {
         grid[i].push("mine");
-        
       }
+
       else {
         grid[i].push("no mine");
         
@@ -130,29 +139,31 @@ function showMap(){
   for (let y=0; y<GRIDSIZE; y++) {
     mineMap.push([]);
     for (let x=0; x<GRIDSIZE; x++) {
+      
       let closeMine = 0;
+      
       if (x>= 0 && x< GRIDSIZE && y - 1>= 0 && y + 1  < GRIDSIZE) {
         for(let i=-1;i<=1;i++){
           for (let j=-1;j<=1;j++){
             if (grid[y+i][x+j] === "mine"){
               closeMine = closeMine+1;
             }
-          }
-          
+          }  
         }
         mineMap[y].push(closeMine);
       }
+      
       else if (x>= 0 && x < GRIDSIZE && y + 1> 0 && y + 1  < GRIDSIZE) {
         for(let i=0;i<=1;i++){
           for (let j=-1;j<=1;j++){
             if (grid[y+i][x+j] === "mine"){
               closeMine = closeMine+1;
             }
-          }
-          
+          }  
         }
         mineMap[y].push(closeMine);
       }
+      
       else{
         for(let i=-1;i<=0;i++){
           for (let j=-1;j<=1;j++){
@@ -160,12 +171,12 @@ function showMap(){
               closeMine = closeMine+1;
             }
           }
-         
         }
         mineMap[y].push(closeMine);
       } 
     }
   }
+  
   return mineMap;
 }
 
@@ -186,30 +197,32 @@ function displayGrid() {
         textSize(cellSize * 0.8);
         textAlign(CENTER, CENTER);
         text(mineMap[y][x],x*cellSize + windowWidth/2 - cellSize*(GRIDSIZE/2) +cellSize/2, y*cellSize+ windowHeight/2 - cellSize*(GRIDSIZE/2) + cellSize/2);
-        
       }
+      
       // determine which square should be orange (flag)
       else if (grid[y][x] === "mineflaged" || grid[y][x] === "no mineflaged"){
         fill("orange");
         rect(x*cellSize + windowWidth/2 - cellSize*(GRIDSIZE/2), y*cellSize+ windowHeight/2 - cellSize*(GRIDSIZE/2), cellSize, cellSize);
       }
+      
       // change square to red if bomb
       else if (grid[y][x] === "blow up"){
         fill("red");
         rect(x*cellSize + windowWidth/2 - cellSize*(GRIDSIZE/2), y*cellSize+ windowHeight/2 - cellSize*(GRIDSIZE/2), cellSize, cellSize);
         state ="blowAllMine";
       }
+      
       // All squares are green when untouched
       else{
         fill("green");
         rect(x*cellSize + windowWidth/2 - cellSize*(GRIDSIZE/2), y*cellSize+ windowHeight/2 - cellSize*(GRIDSIZE/2), cellSize, cellSize);
       }
       
-    
     }
     
   }
 }
+
 
 
 // if bomb is pressed, find all other bomb automactically and explode them
